@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>FocusQuest - Tu Pomodoro Mascota Virtual</title>
+  
+  <!-- SEO Meta Tags -->
+  <meta name="description" content="Enfócate con el método Pomodoro, gana monedas y haz crecer a tu mascota virtual. La app definitiva de productividad gamificada.">
+  <meta name="theme-color" content="#1e1b4b">
+  
+  <!-- PWA Meta Tags -->
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <link rel="apple-touch-icon" href="/icons/icon-192.png">
+  <link rel="manifest" href="/manifest.json">
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=Space+Grotesk:wght@400;700&display=swap" rel="stylesheet">
+  
+  <!-- Lucide Icons CDN -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="app-container">
+    
+    <!-- Top Bar: Coins, Level and XP -->
+    <header class="top-bar">
+      <div class="level-badge">
+        <span class="lbl">LVL</span>
+        <span id="pet-level">1</span>
+      </div>
+      <div class="xp-bar-container">
+        <div class="xp-info">
+          <span id="pet-name-display">Pixel</span>
+          <span id="xp-text">0 / 100 XP</span>
+        </div>
+        <div class="xp-track">
+          <div id="xp-fill" class="xp-fill" style="width: 0%"></div>
+        </div>
+      </div>
+      <div class="coins-badge">
+        <i data-lucide="coins" class="coin-icon"></i>
+        <span id="user-coins">0</span>
+      </div>
+    </header>
+
+    <!-- Main Screens Container -->
+    <main class="main-content">
+      
+      <!-- SCREEN 1: TIMER & PET (Default) -->
+      <section id="screen-timer" class="screen active">
+        <!-- Background Ambient Glow -->
+        <div id="ambient-glow" class="ambient-glow state-idle"></div>
+        
+        <!-- Pet Container -->
+        <div class="pet-wrapper">
+          <!-- Pet Status Indicators -->
+          <div class="pet-status-indicators">
+            <div class="stat-bar-mini">
+              <i data-lucide="heart" class="heart-icon"></i>
+              <div class="mini-track"><div id="happy-fill" class="happy-fill" style="width: 100%"></div></div>
+            </div>
+          </div>
+
+          <!-- The SVG Animated Pet -->
+          <div id="pet-card-container" class="pet-card default-bg">
+            <div id="pet-svg-container" class="pet-svg-container">
+              <!-- Inline SVG Pet -->
+              <svg id="pet-svg" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+                <!-- Shadow -->
+                <ellipse cx="100" cy="170" rx="45" ry="10" fill="rgba(0,0,0,0.2)" />
+                
+                <!-- Background items (like desk when studying, Zzz when sleeping) -->
+                <g id="pet-scene-bg"></g>
+
+                <!-- Pet Body Group -->
+                <g id="pet-body-group" class="pet-idle">
+                  <!-- Main Body Blob -->
+                  <path id="pet-body" d="M 50 110 C 50 70, 150 70, 150 110 C 150 150, 50 150, 50 110" fill="#a78bfa" stroke="#4c1d95" stroke-width="4" />
+                  
+                  <!-- Blushing -->
+                  <circle cx="75" cy="115" r="7" fill="#f472b6" opacity="0.6" />
+                  <circle cx="125" cy="115" r="7" fill="#f472b6" opacity="0.6" />
+
+                  <!-- Eyes -->
+                  <g id="pet-eyes">
+                    <!-- Left eye -->
+                    <circle id="eye-l" cx="85" cy="105" r="7" fill="#1e1b4b" />
+                    <!-- Right eye -->
+                    <circle id="eye-r" cx="115" cy="105" r="7" fill="#1e1b4b" />
+                    <!-- Eye shine -->
+                    <circle cx="83" cy="103" r="2.5" fill="#ffffff" />
+                    <circle cx="113" cy="103" r="2.5" fill="#ffffff" />
+                  </g>
+                  
+                  <!-- Mouth -->
+                  <path id="pet-mouth" d="M 95 118 Q 100 122 105 118" stroke="#1e1b4b" stroke-width="3" fill="none" stroke-linecap="round" />
+
+                  <!-- Accessory Slot (Hat) -->
+                  <g id="pet-hat-slot"></g>
+                </g>
+
+                <!-- Foreground items (Laptop, food bowl, etc.) -->
+                <g id="pet-scene-fg"></g>
+              </svg>
+            </div>
+          </div>
+        </div>
+
+        <!-- Timer Circle and Controls -->
+        <div class="timer-section">
+          <div class="timer-display-container">
+            <svg class="progress-ring" width="220" height="220">
+              <circle class="progress-ring__circle-bg" stroke="rgba(255,255,255,0.05)" stroke-width="8" fill="transparent" r="95" cx="110" cy="110"/>
+              <circle id="timer-progress" class="progress-ring__circle" stroke="#8b5cf6" stroke-width="8" stroke-dasharray="596.9" stroke-dashoffset="0" stroke-linecap="round" fill="transparent" r="95" cx="110" cy="110"/>
+            </svg>
+            <div class="timer-values">
+              <span id="timer-label" class="timer-label">ENFOQUE</span>
+              <span id="timer-clock" class="timer-clock">25:00</span>
+            </div>
+          </div>
+
+          <div class="timer-modes">
+            <button id="mode-focus" class="mode-btn active">Pomodoro</button>
+            <button id="mode-short" class="mode-btn">Break Corto</button>
+          </div>
+
+          <div class="timer-controls">
+            <button id="btn-play-pause" class="ctrl-btn main-ctrl">
+              <i data-lucide="play" id="icon-play-pause"></i>
+            </button>
+            <button id="btn-reset" class="ctrl-btn secondary-ctrl">
+              <i data-lucide="rotate-ccw"></i>
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <!-- SCREEN 2: SHOP (Accessories & Customization) -->
+      <section id="screen-shop" class="screen">
+        <h2 class="screen-title">Tienda de Accesorios</h2>
+        <p class="screen-subtitle">Viste a tu mascota y compra decoraciones con tus monedas de enfoque.</p>
+        
+        <div class="shop-grid">
+          <!-- Hats Category -->
+          <div class="shop-item" data-id="tophat" data-price="30">
+            <div class="item-preview">🎩</div>
+            <div class="item-info">
+              <h3>Sombrero de Copa</h3>
+              <div class="price-tag"><i data-lucide="coins"></i> 30</div>
+            </div>
+            <button class="buy-btn" data-id="tophat">Comprar</button>
+          </div>
+          
+          <div class="shop-item" data-id="chefhat" data-price="45">
+            <div class="item-preview">👨‍🍳</div>
+            <div class="item-info">
+              <h3>Gorro de Chef</h3>
+              <div class="price-tag"><i data-lucide="coins"></i> 45</div>
+            </div>
+            <button class="buy-btn" data-id="chefhat">Comprar</button>
+          </div>
+
+          <div class="shop-item" data-id="crown" data-price="100">
+            <div class="item-preview">👑</div>
+            <div class="item-info">
+              <h3>Corona Real</h3>
+              <div class="price-tag"><i data-lucide="coins"></i> 100</div>
+            </div>
+            <button class="buy-btn" data-id="crown">Comprar</button>
+          </div>
+
+          <div class="shop-item" data-id="glasses" data-price="25">
+            <div class="item-preview">🕶️</div>
+            <div class="item-info">
+              <h3>Gafas Cool</h3>
+              <div class="price-tag"><i data-lucide="coins"></i> 25</div>
+            </div>
+            <button class="buy-btn" data-id="glasses">Comprar</button>
+          </div>
+
+          <!-- Backgrounds -->
+          <div class="shop-item" data-id="bg_neon" data-price="50">
+            <div class="item-preview-bg neon">🌌</div>
+            <div class="item-info">
+              <h3>Fondo Neón</h3>
+              <div class="price-tag"><i data-lucide="coins"></i> 50</div>
+            </div>
+            <button class="buy-btn" data-id="bg_neon">Comprar</button>
+          </div>
+
+          <div class="shop-item" data-id="bg_garden" data-price="60">
+            <div class="item-preview-bg garden">🏡</div>
+            <div class="item-info">
+              <h3>Fondo Jardín</h3>
+              <div class="price-tag"><i data-lucide="coins"></i> 60</div>
+            </div>
+            <button class="buy-btn" data-id="bg_garden">Comprar</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- SCREEN 3: STATS (Focus logs) -->
+      <section id="screen-stats" class="screen">
+        <h2 class="screen-title">Historial de Enfoque</h2>
+        
+        <div class="stats-summary">
+          <div class="stat-card">
+            <span class="stat-num" id="total-focus-hours">0h</span>
+            <span class="stat-lbl">Tiempo Total</span>
+          </div>
+          <div class="stat-card">
+            <span class="stat-num" id="sessions-count">0</span>
+            <span class="stat-lbl">Sesiones</span>
+          </div>
+        </div>
+
+        <div class="history-section">
+          <h3>Últimos 7 días</h3>
+          <div id="history-chart" class="history-chart">
+            <!-- Chart columns will be generated via JS -->
+            <div class="chart-empty">No hay sesiones registradas esta semana. ¡Es hora de enfocarse!</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- SCREEN 4: SETTINGS (Customization) -->
+      <section id="screen-settings" class="screen">
+        <h2 class="screen-title">Configuración</h2>
+        
+        <div class="settings-card">
+          <h3>Identidad de la Mascota</h3>
+          <div class="input-group">
+            <label for="input-pet-name">Nombre de tu Mascota</label>
+            <input type="text" id="input-pet-name" value="Pixel" maxlength="15">
+          </div>
+          <button id="btn-save-settings" class="save-btn">Guardar Cambios</button>
+        </div>
+
+        <div class="settings-card info-card">
+          <h3>Sobre FocusQuest</h3>
+          <p>Version 1.0.0</p>
+          <p>Toma el control de tu productividad a través del método Pomodoro mientras juegas. ¡Instálala como PWA y llévala a todas partes!</p>
+          <div class="pwa-install-container">
+            <button id="btn-pwa-install" class="pwa-btn" style="display: none;">
+              <i data-lucide="download"></i> Instalar en Pantalla de Inicio
+            </button>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <!-- Bottom Navigation Bar (Mobile Friendly) -->
+    <nav class="bottom-nav">
+      <button class="nav-item active" data-screen="screen-timer">
+        <i data-lucide="timer"></i>
+        <span>Enfoque</span>
+      </button>
+      <button class="nav-item" data-screen="screen-shop">
+        <i data-lucide="shopping-bag"></i>
+        <span>Tienda</span>
+      </button>
+      <button class="nav-item" data-screen="screen-stats">
+        <i data-lucide="bar-chart-2"></i>
+        <span>Historial</span>
+      </button>
+      <button class="nav-item" data-screen="screen-settings">
+        <i data-lucide="settings"></i>
+        <span>Ajustes</span>
+      </button>
+    </nav>
+  </div>
+
+  <!-- Audio elements for feedback -->
+  <audio id="audio-complete" src="https://assets.mixkit.co/active_storage/sfx/2019/2019-84.wav"></audio>
+  <audio id="audio-click" src="https://assets.mixkit.co/active_storage/sfx/2568/2568-84.wav"></audio>
+
+  <script src="app.js"></script>
+</body>
+</html>
